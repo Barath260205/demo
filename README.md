@@ -1,2 +1,837 @@
 # demo
-It is Demo website
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ayyappa Automobiles Billing Software</title>
+
+<!-- Excel Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+/* =========================
+GLOBAL
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial;
+    background:#f2f2f2;
+}
+
+/* =========================
+LOGIN PAGE
+========================= */
+
+#loginPage{
+
+    height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+
+}
+
+.login-box{
+
+    width:360px;
+
+    background:white;
+
+    padding:35px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    box-shadow:0px 0px 20px rgba(0,0,0,0.3);
+
+}
+
+.login-logo{
+
+    width:100px;
+
+    height:100px;
+
+    object-fit:contain;
+
+}
+
+.login-title{
+
+    color:green;
+
+    margin-top:10px;
+
+}
+
+.login-sub{
+
+    color:#666;
+
+    margin-top:5px;
+
+    margin-bottom:20px;
+
+}
+
+input,select,button{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-top:12px;
+
+    border-radius:6px;
+
+    border:1px solid #ccc;
+
+    font-size:15px;
+
+}
+
+button{
+
+    background:green;
+
+    color:white;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    border:none;
+
+}
+
+button:hover{
+
+    background:#006400;
+
+}
+
+.error{
+
+    color:red;
+
+    margin-top:10px;
+
+    display:none;
+
+}
+
+/* =========================
+APP PAGE
+========================= */
+
+#appPage{
+
+    display:none;
+
+    padding:20px;
+
+}
+
+.container{
+
+    max-width:1500px;
+
+    margin:auto;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:10px;
+
+}
+
+.logo-section{
+
+    text-align:center;
+
+}
+
+.logo-section img{
+
+    width:120px;
+
+    height:120px;
+
+    object-fit:contain;
+
+}
+
+.main-title{
+
+    color:green;
+
+    margin-top:10px;
+
+}
+
+.sub-title{
+
+    color:#666;
+
+    margin-top:5px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+
+}
+
+table th{
+
+    background:green;
+
+    color:white;
+
+}
+
+table th,table td{
+
+    border:1px solid #ccc;
+
+    padding:8px;
+
+    text-align:center;
+
+}
+
+.bill-img{
+
+    width:70px;
+
+    height:70px;
+
+    object-fit:cover;
+
+    border-radius:5px;
+
+}
+
+.summary{
+
+    background:#e6f7ff;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    margin-top:20px;
+
+}
+
+.vendor-box{
+
+    margin-top:30px;
+
+    background:#fafafa;
+
+    padding:20px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+}
+
+.logout-btn{
+
+    background:red;
+
+    margin-top:20px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =========================
+LOGIN PAGE
+========================= -->
+
+<div id="loginPage">
+
+<div class="login-box">
+
+<img 
+class="login-logo"
+src="img/1.png"
+>
+
+<h1 class="login-title">
+AYYAPPA AUTOMOBILES
+</h1>
+
+<p class="login-sub">
+Vendor Billing Management
+</p>
+
+<input 
+type="text"
+id="username"
+placeholder="Enter Username"
+>
+
+<input 
+type="password"
+id="password"
+placeholder="Enter Password"
+>
+
+<button onclick="login()">
+LOGIN
+</button>
+
+<p class="error" id="errorMsg">
+Invalid Username or Password
+</p>
+
+</div>
+
+</div>
+
+<!-- =========================
+MAIN APP
+========================= -->
+
+<div id="appPage">
+
+<div class="container">
+
+<!-- LOGO -->
+
+<div class="logo-section">
+
+<img 
+src="img/2.png"
+>
+
+<h1 class="main-title">
+AYYAPPA AUTOMOBILES
+</h1>
+
+<h3 class="sub-title">
+GST & DC Vendor Billing Software
+</h3>
+
+</div>
+
+<!-- CREATE VENDOR -->
+
+<h3>Create Vendor</h3>
+
+<input 
+type="text"
+id="newVendor"
+placeholder="Enter Vendor Name"
+>
+
+<button onclick="addVendor()">
+Add Vendor
+</button>
+
+<!-- SELECT VENDOR -->
+
+<h3>Select Vendor</h3>
+
+<select id="vendorSelect">
+
+<option value="">
+Select Vendor
+</option>
+
+</select>
+
+<!-- BILL ENTRY -->
+
+<h3>Bill Entry</h3>
+
+<input type="date" id="date">
+
+<input 
+type="text"
+id="customer"
+placeholder="Customer Name"
+>
+
+<select id="billType">
+
+<option value="GST">
+GST Bill
+</option>
+
+<option value="DC">
+DC Bill
+</option>
+
+</select>
+
+<input 
+type="number"
+id="billAmount"
+placeholder="Bill Amount"
+>
+
+<input 
+type="number"
+id="payment"
+placeholder="Payment Amount"
+>
+
+<select id="paymentMethod">
+
+<option value="Cash">
+Cash
+</option>
+
+<option value="QR">
+QR Payment
+</option>
+
+<option value="Credit">
+Credit
+</option>
+
+</select>
+
+<label>
+Upload Bill Scanner
+</label>
+
+<input type="file" id="billImage">
+
+<button onclick="saveBill()">
+Save Bill
+</button>
+
+<!-- EXPORT -->
+
+<h3>Export Reports</h3>
+
+<button onclick="exportExcel()">
+Export Excel
+</button>
+
+<button onclick="exportPDF()">
+Export PDF
+</button>
+
+<!-- BILL DATA -->
+
+<div id="vendorBills"></div>
+
+<!-- LOGOUT -->
+
+<button class="logout-btn" onclick="logout()">
+Logout
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================
+LOGIN
+========================= */
+
+function login(){
+
+    let username = document.getElementById("username").value;
+
+    let password = document.getElementById("password").value;
+
+    if(username === "admin" && password === "Ayyappa123"){
+
+        document.getElementById("loginPage").style.display = "none";
+
+        document.getElementById("appPage").style.display = "block";
+
+    }
+    else{
+
+        document.getElementById("errorMsg").style.display = "block";
+
+    }
+
+}
+
+function logout(){
+
+    location.reload();
+
+}
+
+/* =========================
+VENDOR SYSTEM
+========================= */
+
+let vendors = JSON.parse(localStorage.getItem("vendors")) || [];
+
+loadVendorDropdown();
+
+function addVendor(){
+
+    let vendor = document.getElementById("newVendor").value;
+
+    if(vendor == ""){
+
+        alert("Enter Vendor Name");
+
+        return;
+
+    }
+
+    if(vendors.includes(vendor)){
+
+        alert("Vendor Already Exists");
+
+        return;
+
+    }
+
+    vendors.push(vendor);
+
+    localStorage.setItem("vendors", JSON.stringify(vendors));
+
+    loadVendorDropdown();
+
+    document.getElementById("newVendor").value = "";
+
+    alert("Vendor Added");
+
+}
+
+function loadVendorDropdown(){
+
+    let select = document.getElementById("vendorSelect");
+
+    select.innerHTML = '<option value="">Select Vendor</option>';
+
+    vendors.forEach(vendor => {
+
+        select.innerHTML += `
+
+        <option value="${vendor}">
+        ${vendor}
+        </option>
+
+        `;
+
+    });
+
+}
+
+/* =========================
+SAVE BILL
+========================= */
+
+function saveBill(){
+
+    let vendor = document.getElementById("vendorSelect").value;
+
+    let date = document.getElementById("date").value;
+
+    let customer = document.getElementById("customer").value;
+
+    let billType = document.getElementById("billType").value;
+
+    let billAmount = Number(document.getElementById("billAmount").value);
+
+    let payment = Number(document.getElementById("payment").value);
+
+    let paymentMethod = document.getElementById("paymentMethod").value;
+
+    let billImage = document.getElementById("billImage").files[0];
+
+    if(vendor == ""){
+
+        alert("Select Vendor");
+
+        return;
+
+    }
+
+    let credit = billAmount - payment;
+
+    let vendorKey = "vendor_" + vendor;
+
+    let vendorBills = JSON.parse(localStorage.getItem(vendorKey)) || [];
+
+    let reader = new FileReader();
+
+    reader.onload = function(){
+
+        let imageData = reader.result;
+
+        let bill = {
+
+            date,
+            customer,
+            billType,
+            billAmount,
+            payment,
+            credit,
+            paymentMethod,
+            imageData
+
+        };
+
+        vendorBills.push(bill);
+
+        localStorage.setItem(vendorKey, JSON.stringify(vendorBills));
+
+        alert("Bill Saved");
+
+        loadVendorBills(vendor);
+
+    };
+
+    if(billImage){
+
+        reader.readAsDataURL(billImage);
+
+    }
+    else{
+
+        reader.onload({target:{result:""}});
+
+    }
+
+}
+
+/* =========================
+LOAD VENDOR BILLS
+========================= */
+
+document.getElementById("vendorSelect").addEventListener("change", function(){
+
+    let vendor = this.value;
+
+    if(vendor != ""){
+
+        loadVendorBills(vendor);
+
+    }
+
+});
+
+function loadVendorBills(vendor){
+
+    let vendorKey = "vendor_" + vendor;
+
+    let bills = JSON.parse(localStorage.getItem(vendorKey)) || [];
+
+    let html = `
+
+    <div class="vendor-box">
+
+    <h2>${vendor} Bills</h2>
+
+    <table>
+
+    <thead>
+
+    <tr>
+
+    <th>Date</th>
+
+    <th>Customer</th>
+
+    <th>Bill Type</th>
+
+    <th>Bill Amount</th>
+
+    <th>Payment</th>
+
+    <th>Credit</th>
+
+    <th>Payment Method</th>
+
+    <th>Bill Scan</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    `;
+
+    let totalPayment = 0;
+
+    let totalCredit = 0;
+
+    bills.forEach(bill => {
+
+        totalPayment += bill.payment;
+
+        totalCredit += bill.credit;
+
+        html += `
+
+        <tr>
+
+        <td>${bill.date}</td>
+
+        <td>${bill.customer}</td>
+
+        <td>${bill.billType}</td>
+
+        <td>₹ ${bill.billAmount}</td>
+
+        <td>₹ ${bill.payment}</td>
+
+        <td>₹ ${bill.credit}</td>
+
+        <td>${bill.paymentMethod}</td>
+
+        <td>
+
+        <img src="${bill.imageData}" class="bill-img">
+
+        </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    html += `
+
+    </tbody>
+
+    </table>
+
+    <div class="summary">
+
+    <h3>Total Payment : ₹ ${totalPayment}</h3>
+
+    <h3>Total Credit : ₹ ${totalCredit}</h3>
+
+    </div>
+
+    </div>
+
+    `;
+
+    document.getElementById("vendorBills").innerHTML = html;
+
+}
+
+/* =========================
+EXPORT EXCEL
+========================= */
+
+function exportExcel(){
+
+    let vendor = document.getElementById("vendorSelect").value;
+
+    if(vendor == ""){
+
+        alert("Select Vendor");
+
+        return;
+
+    }
+
+    let vendorKey = "vendor_" + vendor;
+
+    let bills = JSON.parse(localStorage.getItem(vendorKey)) || [];
+
+    let worksheet = XLSX.utils.json_to_sheet(bills);
+
+    let workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, vendor);
+
+    XLSX.writeFile(workbook, vendor + "_Bills.xlsx");
+
+}
+
+/* =========================
+EXPORT PDF
+========================= */
+
+async function exportPDF(){
+
+    let vendor = document.getElementById("vendorSelect").value;
+
+    if(vendor == ""){
+
+        alert("Select Vendor");
+
+        return;
+
+    }
+
+    let vendorKey = "vendor_" + vendor;
+
+    let bills = JSON.parse(localStorage.getItem(vendorKey)) || [];
+
+    const { jsPDF } = window.jspdf;
+
+    let doc = new jsPDF();
+
+    doc.text("AYYAPPA AUTOMOBILES",20,20);
+
+    doc.text(vendor + " BILL REPORT",20,30);
+
+    let y = 50;
+
+    bills.forEach((bill,index)=>{
+
+        let text = `${index+1}. ${bill.date} | ${bill.customer} | ${bill.billType} | ₹${bill.billAmount}`;
+
+        doc.text(text,10,y);
+
+        y += 12;
+
+    });
+
+    doc.save(vendor + "_Bills.pdf");
+
+}
+
+</script>
+
+</body>
+
+</html>
+
